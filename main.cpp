@@ -83,6 +83,7 @@ public:
 class Graf {
 public:
     vector<shared_ptr<Node>> GrafListe;
+    vector<shared_ptr<Kant>> AlleKanter; //skal inneholde kantene for hele grafen
 
     bool NodeEksisterer(const size_t id) {
         for (const auto& it : GrafListe) {
@@ -114,19 +115,15 @@ public:
         shared_ptr<Node> node1 = FinnNode(id1);
         shared_ptr<Node> node2 = FinnNode(id2);
 
-
         if (FinnNode(id1) && FinnNode(id2)) {
-            Kant NyKant(node1, node2);
-            for (const auto &nabo: node1->KantListe) {
-                if (nabo->node1->hentID() == id2) {
-                    cout << "En kant finnes allerede mellom " << id1 << "og" << id2 << endl;
-                    return;
-                }
+            for (const auto& n: AlleKanter) {
+                if (n->KantEksisterer(id1, id2)){cout << "kant eksisterer!" << endl; return;}
             }
 
-            // adjacency list: begge retninger
-            // node1->NodeListe.push_back(node2);
-            // node2->NodeListe.push_back(node1);
+            auto NyKant = make_shared<Kant>(node1, node2);
+            AlleKanter.push_back(NyKant);
+            node1->AddEdge(NyKant);
+            node2->AddEdge(NyKant);
         }
         else {
             cout << "Kunne ikke lage en kant: en eller ingen noder funnet" << endl;
