@@ -2,35 +2,41 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<stdexcept>
 using namespace std;
 
 class Kant;
 class Node;
 
-class Node {
+class Node : public std::enable_shared_from_this<Node>{
 private:
     size_t ID;
-
+    vector<shared_ptr<Kant>> KantListe; //holde plass for kanter
 public:
-    vector<shared_ptr<Kant>> KantListe; //holde plass for naboene; kanter
     Node(size_t id) : ID(id) {}
     size_t hentID() const {return ID;}
+    const vector<shared_ptr<Kant>> hentListe() const {return KantListe;}
 
-    void PrintNabo() const {
-        cout << "Node med ID: " << ID << " har disse naboene: " << endl;
-        for (const auto& it : KantListe) {
-            cout << it->hentID() << endl;
-        }
+    void AddEdge(const shared_ptr<Kant>& kant) {
+        KantListe.push_back(kant);
     }
 
-    void FjernNabo(size_t id) {
-        for (auto it = KantListe.begin(); it != KantListe.end(); ++it) {
-            if ((*it)->hentID() == id) {
+    void FjernKant(const shared_ptr<Kant>& kant) {
+        for (auto it = KantListe.begin(); it != KantListe.end(); it++) {
+            if (*it == kant) {
                 it = KantListe.erase(it);
                 return;
             }
         }
     }
+
+    void PrintNaboer() const {
+        cout << "Node med ID: " << ID << " har disse naboene: " << endl;
+        for (const auto& it : KantListe) {
+            auto nabo = it->HentAndreNode(const_cast<Node*>(this)->shared_from_this());
+        }
+    }
+
 
 };
 
@@ -43,7 +49,8 @@ private:
 public:
     Kant(const shared_ptr<Node>& Node1, const shared_ptr<Node>& Node2, int V=0) : node1(Node1), node2(Node2), vekt(V) {}
 
-    shared_ptr<Node> HentNabo(const shared_ptr<Node>& node) {
+
+    shared_ptr<Node> HentAndreNode(const shared_ptr<Node>& node) {
         if (node == node1) { return node2;}
         if (node == node2) { return node1;}
         cout << "Denne noden er ikke koblet med noen andre noder" << endl;
@@ -103,6 +110,7 @@ public:
     }
 
     void LeggTilKant(size_t id1, size_t id2) {
+
         shared_ptr<Node> node1 = FinnNode(id1);
         shared_ptr<Node> node2 = FinnNode(id2);
 
@@ -172,7 +180,7 @@ void PrintGraphList(const Graf& graf) {
 
 void PrintAdjacencyList(const Graf& graf) {
     for (const auto& node : graf.GrafListe) {
-        node->PrintNabo();
+        node->PrintNaboer();
     }
 }
 
