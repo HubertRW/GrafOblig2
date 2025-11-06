@@ -4,13 +4,14 @@
 #include<memory>
 
 using namespace std;
+class Kant;
 
 class Node {
 private:
     size_t ID;
 
 public:
-    vector<shared_ptr<Node>> NodeListe; //holde plass for naboene; kanter
+    vector<shared_ptr<Kant>> NodeListe; //holde plass for naboene; kanter
     Node(size_t id) : ID(id) {}
     size_t hentID() const {return ID;}
 
@@ -31,6 +32,17 @@ public:
     }
 
 };
+
+class Kant {
+    public:
+    shared_ptr<Node> node1;
+    shared_ptr<Node> node2;
+
+    Kant(const shared_ptr<Node>& Node1, const shared_ptr<Node>& Node2) : node1(Node1), node2(Node2) {}
+
+
+};
+
 
 class Graf {
 public:
@@ -65,17 +77,19 @@ public:
         shared_ptr<Node> node1 = FinnNode(id1);
         shared_ptr<Node> node2 = FinnNode(id2);
 
+
         if (FinnNode(id1) && FinnNode(id2)) {
+            Kant NyKant(node1, node2);
             for (const auto &nabo: node1->NodeListe) {
-                if (nabo->hentID() == id2) {
+                if (nabo->node1->hentID() == id2) {
                     cout << "En kant finnes allerede mellom " << id1 << "og" << id2 << endl;
                     return;
                 }
             }
 
             // adjacency list: begge retninger
-            node1->NodeListe.push_back(node2);
-            node2->NodeListe.push_back(node1);
+            // node1->NodeListe.push_back(node2);
+            // node2->NodeListe.push_back(node1);
         }
         else {
             cout << "Kunne ikke lage en kant: en eller ingen noder funnet" << endl;
@@ -120,6 +134,7 @@ public:
 
 };
 
+
 void PrintGraphList(const Graf& graf) {
     for (const auto& node : graf.GrafListe) {
         cout << node->hentID() << endl;
@@ -131,6 +146,8 @@ void PrintAdjacencyList(const Graf& graf) {
         node->PrintNabo();
     }
 }
+
+
 
 void Test1() {
     Graf G;
