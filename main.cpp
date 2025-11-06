@@ -2,30 +2,31 @@
 #include<string>
 #include<vector>
 #include<memory>
-
 using namespace std;
+
 class Kant;
+class Node;
 
 class Node {
 private:
     size_t ID;
 
 public:
-    vector<shared_ptr<Kant>> NodeListe; //holde plass for naboene; kanter
+    vector<shared_ptr<Kant>> KantListe; //holde plass for naboene; kanter
     Node(size_t id) : ID(id) {}
     size_t hentID() const {return ID;}
 
     void PrintNabo() const {
         cout << "Node med ID: " << ID << " har disse naboene: " << endl;
-        for (const auto& it : NodeListe) {
+        for (const auto& it : KantListe) {
             cout << it->hentID() << endl;
         }
     }
 
     void FjernNabo(size_t id) {
-        for (auto it = NodeListe.begin(); it != NodeListe.end(); ++it) {
+        for (auto it = KantListe.begin(); it != KantListe.end(); ++it) {
             if ((*it)->hentID() == id) {
-                it = NodeListe.erase(it);
+                it = KantListe.erase(it);
                 return;
             }
         }
@@ -34,13 +35,41 @@ public:
 };
 
 class Kant {
-    public:
+private:
     shared_ptr<Node> node1;
     shared_ptr<Node> node2;
+    int vekt;
 
-    Kant(const shared_ptr<Node>& Node1, const shared_ptr<Node>& Node2) : node1(Node1), node2(Node2) {}
+public:
+    Kant(const shared_ptr<Node>& Node1, const shared_ptr<Node>& Node2, int V=0) : node1(Node1), node2(Node2), vekt(V) {}
 
+    shared_ptr<Node> HentNabo(const shared_ptr<Node>& node) {
+        if (node == node1) { return node2;}
+        if (node == node2) { return node1;}
+        cout << "Denne noden er ikke koblet med noen andre noder" << endl;
+        return nullptr;
+    }
 
+    //vi sjekker om en node er en del av en lagd kant
+    bool HarKant(const shared_ptr<Node>& node) {
+        if (node == node1 || node == node2) { return true; }
+        return false;
+    }
+
+    bool KantEksisterer(const size_t& id1, const size_t& id2) {
+        if (node1->hentID() == id1 && node2->hentID() == id2 || node1->hentID() == id2 && node2->hentID() == id1) {
+            return true;
+        }
+        return false;
+    }
+
+    //ekstra funksjoner med vekt verdier(mer relevant for del 3)
+    int HentVekt() const {return vekt;}
+    void BestemVekt(const int V){ vekt = V;}
+
+    void PrintKant() {
+        cout << node1->hentID() << "<->" << node2->hentID() << endl;
+    }
 };
 
 
@@ -80,7 +109,7 @@ public:
 
         if (FinnNode(id1) && FinnNode(id2)) {
             Kant NyKant(node1, node2);
-            for (const auto &nabo: node1->NodeListe) {
+            for (const auto &nabo: node1->KantListe) {
                 if (nabo->node1->hentID() == id2) {
                     cout << "En kant finnes allerede mellom " << id1 << "og" << id2 << endl;
                     return;
@@ -122,7 +151,7 @@ public:
         for ( auto it = GrafListe.begin(); it != GrafListe.end(); ++it) {
             if ((*it)->hentID() == NodeDelete->hentID()) { //located the node
                 //fjern kanter først
-                for (const auto& nabo : NodeDelete->NodeListe) {
+                for (const auto& nabo : NodeDelete->KantListe) {
                     nabo->FjernNabo(id);
                 }
                 it = GrafListe.erase(it);
