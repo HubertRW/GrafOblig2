@@ -2,7 +2,6 @@
 #include<string>
 #include<vector>
 #include<memory>
-#include<stdexcept>
 using namespace std;
 
 class Kant;
@@ -30,13 +29,7 @@ public:
         }
     }
 
-    void PrintNaboer() const {
-        cout << "Node med ID: " << ID << " har disse naboene: " << endl;
-        for (const auto& it : KantListe) {
-            auto nabo = it->HentAndreNode(const_cast<Node*>(this)->shared_from_this());
-        }
-    }
-
+    void PrintNaboer() const;
 
 };
 
@@ -78,6 +71,20 @@ public:
         cout << node1->hentID() << "<->" << node2->hentID() << endl;
     }
 };
+
+
+void Node::PrintNaboer() const {
+    cout << "Node med ID: " << ID << " har disse naboene: " << endl;
+    bool HarNabo = false;
+    for (const auto &kant : KantListe) {
+        auto nabo = kant->HentAndreNode(const_cast<Node *>(this)->shared_from_this());
+        if (nabo) {
+            cout << nabo->hentID() << endl;
+            HarNabo = true;
+        }
+  }
+    if (!HarNabo) { cout << "ingen naboer" << endl; return; }
+}
 
 
 class Graf {
@@ -238,6 +245,6 @@ void Test2Del1() {
 
 int main() {
 
-    Test1();
+    Test2Del1();
 
 }
