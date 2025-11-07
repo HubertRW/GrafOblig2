@@ -133,36 +133,47 @@ public:
     // del 1 oppgave 3
     void SlettKant(size_t id1, size_t id2) {
 
-        if (!NodeEksisterer(id1) && !NodeEksisterer(id2)) { cout << "test"; return; }
+        if (!NodeEksisterer(id1) && !NodeEksisterer(id2)) {  return; }
         if (NodeEksisterer(id1) != (NodeEksisterer(id2))) { // we want BOTH of them to exist
             cout << " begge noder må eksistere" << id1 << "og" << id2 << endl;
             return;
         }
 
-        shared_ptr<Node> node1 = FinnNode(id1);
-        shared_ptr<Node> node2 = FinnNode(id2);
+        auto node1 = FinnNode(id1);
+        auto node2 = FinnNode(id2);
 
-        node1->FjernNabo(id2);
-        node2->FjernNabo(id1);
+        for (auto kant = AlleKanter.begin(); kant != AlleKanter.end(); ++kant) {
+            if((*kant)->KantEksisterer(id1, id2)) {
+                node1->FjernKant(*kant);
+                node2->FjernKant(*kant);
+                kant = AlleKanter.erase(kant);
+                return;
+            }
+        }
 
 
     }
 
     void SlettNode(size_t id) {
 
-        if (!NodeEksisterer(id)) { return; }
+        if (!NodeEksisterer(id)) { cout << "Noden eksisterer ikke!"; return; }
         const auto NodeDelete = FinnNode(id);
 
-        for ( auto it = GrafListe.begin(); it != GrafListe.end(); ++it) {
-            if ((*it)->hentID() == NodeDelete->hentID()) { //located the node
-                //fjern kanter først
-                for (const auto& nabo : NodeDelete->KantListe) {
-                    nabo->FjernNabo(id);
-                }
-                it = GrafListe.erase(it);
-                return;
+        //sjekker for kanter og sletter de:
+        for(auto kant = AlleKanter.begin(); kant != AlleKanter.end(); ++kant) {
+
+            if ((*kant)->HarKant(NodeDelete)) {
+                auto nabo = (*kant)->HentAndreNode(NodeDelete);
+                SlettKant(id, nabo->hentID());
             }
 
+        }
+
+        for (auto it = GrafListe.begin(); it != GrafListe.end(); ++it) {
+            if (*it == NodeDelete) {
+                it = GrafListe.erase(it);
+                return; // har slettet noden
+            }
         }
     }
 
