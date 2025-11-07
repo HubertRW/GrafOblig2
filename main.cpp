@@ -102,7 +102,7 @@ public:
         return false;
     }
 
-    shared_ptr<Node> FinnNode(size_t id) {
+    shared_ptr<Node> FinnNode(const size_t id) {
             for (auto node: GrafListe) {
                 if (node->hentID() == id) {
                     return node;
@@ -117,7 +117,7 @@ public:
         GrafListe.push_back(make_shared<Node>(id));
     }
 
-    void LeggTilKant(size_t id1, size_t id2) {
+    void LeggTilKant(const size_t id1, const size_t id2) {
 
         shared_ptr<Node> node1 = FinnNode(id1);
         shared_ptr<Node> node2 = FinnNode(id2);
@@ -138,7 +138,7 @@ public:
     }
 
     // del 1 oppgave 3
-    void SlettKant(size_t id1, size_t id2) {
+    void SlettKant(const size_t id1, const size_t id2) {
 
         if (!NodeEksisterer(id1) && !NodeEksisterer(id2)) {  return; }
         if (NodeEksisterer(id1) != (NodeEksisterer(id2))) { // we want BOTH of them to exist
@@ -146,8 +146,8 @@ public:
             return;
         }
 
-        auto node1 = FinnNode(id1);
-        auto node2 = FinnNode(id2);
+        const auto node1 = FinnNode(id1);
+        const auto node2 = FinnNode(id2);
 
         for (auto kant = AlleKanter.begin(); kant != AlleKanter.end(); ++kant) {
             if((*kant)->KantEksisterer(id1, id2)) {
@@ -161,7 +161,7 @@ public:
 
     }
 
-    void SlettNode(size_t id) {
+    void SlettNode(const size_t id) {
 
         if (!NodeEksisterer(id)) { cout << "Noden eksisterer ikke!"; return; }
         const auto NodeDelete = FinnNode(id);
@@ -179,7 +179,7 @@ public:
         for (auto it = GrafListe.begin(); it != GrafListe.end(); ++it) {
             if (*it == NodeDelete) {
                 it = GrafListe.erase(it);
-                return; // har slettet noden
+                return;
             }
         }
     }
@@ -198,7 +198,6 @@ void PrintAdjacencyList(const Graf& graf) {
         node->PrintNaboer();
     }
 }
-
 
 
 void Test1() {
@@ -243,8 +242,43 @@ void Test2Del1() {
     PrintAdjacencyList(G);
 }
 
+void DuplikatTest() {
+    Graf P;
+    P.LeggTilNode(52);
+    P.LeggTilNode(43);
+    P.LeggTilNode(105);
+    P.LeggTilNode(92);
+    P.LeggTilNode(52);
+    P.LeggTilNode(43);
+    PrintGraphList(P);
+}
+
+void EmptyTest() {
+    Graf A;
+    A.LeggTilNode(2);
+    A.LeggTilNode(5);
+    A.LeggTilNode(14);
+    A.LeggTilNode(48);
+    A.LeggTilNode(33);
+    A.LeggTilKant(2,48);
+    A.LeggTilKant(5,33);
+
+    //sletter hele listen, en og en:
+    const auto it = A.GrafListe.begin();
+    A.SlettKant(5, 33);
+    A.SlettKant(2, 48);
+    while (it != A.GrafListe.end()) {
+        A.GrafListe.erase(it);
+    }
+    if (A.GrafListe.empty()) {
+        cout << "Listen vaar er tom!" << endl;
+    }
+
+}
+
 int main() {
 
-    Test2Del1();
+    EmptyTest();
+
 
 }
